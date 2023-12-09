@@ -2,12 +2,14 @@ import React, { useEffect } from "react";
 
 const CreateCall = ({socket , PeerConnection })=>{    
 
+    var Stream;
+
     const InitializeInputSystem = async () =>{
         const constrains = {
             "video":true,
             "audio":true
         }
-        var Stream;
+        
     
         await navigator.mediaDevices.getUserMedia(constrains)
         .then(stream=>{
@@ -22,9 +24,19 @@ const CreateCall = ({socket , PeerConnection })=>{
         videoElement.srcObject = Stream;
     
         Stream.getTracks().forEach(track => {
+            console.log("Adding track - ",track);
             PeerConnection.addTrack(track, Stream);
         })
     
+        PeerConnection.addEventListener('track', async (event) => {
+            // console.log('Track Event Called');
+            const remoteVideo = document.getElementById('remote-content');
+            console.log(remoteVideo)
+            const [remoteStream] = event.streams;
+            console.log("Recieved stream",remoteStream);
+            remoteVideo.srcObject = remoteStream;
+        });
+
         const SessionId = window.location.pathname.substring(6);
         const offer = await PeerConnection.createOffer();
         await PeerConnection.setLocalDescription(offer);
@@ -36,8 +48,6 @@ const CreateCall = ({socket , PeerConnection })=>{
             const remoteDesc = new RTCSessionDescription(e);
             await PeerConnection.setRemoteDescription(remoteDesc);
             console.log('Remote Description Set');
-            PeerConnection.restartIce();
-
         });
 
         socket.emit('offer' , {"offer" : offer , "SessionId": SessionId});
@@ -49,14 +59,11 @@ const CreateCall = ({socket , PeerConnection })=>{
         PeerConnection.restartIce();
     },[]);
 
-    PeerConnection.restartIce();
-
     return(
         <div>
             <h1>Welcome to the video call</h1>
             <video id="local-content" autoPlay={true} playsInline={true} muted={true}></video>
             <video id="remote-content" autoPlay={true} playsInline={true}></video>  
-            { PeerConnection.restartIce() }
         </div>
     );
 }

@@ -2,12 +2,14 @@ import React, { useEffect } from "react";
 
 const JoinCall = ({ PeerConnection , socket})=>{
 
+    var Stream;
+
     const InitializeInputSystem = async () =>{
         const constrains = {
             "video":true,
             "audio":true
         }
-        var Stream;
+        
     
         await navigator.mediaDevices.getUserMedia(constrains)
         .then(stream=>{
@@ -25,6 +27,17 @@ const JoinCall = ({ PeerConnection , socket})=>{
             PeerConnection.addTrack(track, Stream);
         })
         
+        PeerConnection.addEventListener('track', async (event) => {
+            // console.log('Track Event Called');
+            const remoteVideo = document.getElementById('remote-content');
+            console.log(remoteVideo)
+            const [remoteStream] = event.streams;
+            console.log("Recieved stream",remoteStream);
+            remoteVideo.srcObject = remoteStream;
+        });
+        
+
+
         const SessionId = window.location.pathname.split('/')[2];
         var offer;
 
@@ -36,8 +49,7 @@ const JoinCall = ({ PeerConnection , socket})=>{
             const answer = await PeerConnection.createAnswer();
             await PeerConnection.setLocalDescription(answer);
             socket.emit('answer', answer);
-            console.log('Local Description Set')
-            PeerConnection.restartIce();
+            console.log('Local Description Set');
         });
 
         socket.emit('query' , SessionId);
@@ -48,11 +60,7 @@ const JoinCall = ({ PeerConnection , socket})=>{
 
     useEffect(()=>{
         InitializeInputSystem();
-        PeerConnection.restartIce();
-
     },[]);
-
-    PeerConnection.restartIce();
 
 
     return(
@@ -61,7 +69,6 @@ const JoinCall = ({ PeerConnection , socket})=>{
             <h1>Welcome to the video call</h1>
             <video id="local-content" autoPlay={true} playsInline={true} muted={true}></video>
             <video id="remote-content" autoPlay={true} playsInline={true}></video> 
-            { PeerConnection.restartIce() }
         </div>
         
     );

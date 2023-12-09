@@ -12,31 +12,38 @@ function App() {
   const url = 'http://localhost:5000';
 
   const socket = io(url , {
-      autoConnect: false,
+      autoConnect: false ,
   });  
 
-  const configuration = {'iceServers': [{'urls': 'stun:stun.l.google.com:19302'}]};
+  const configuration = {
+    'iceServers': [
+      {'urls': 'stun:stun.l.google.com:19302'},
+    ]
+  };
 
   const PeerConnection = new RTCPeerConnection(configuration);
    
   PeerConnection.addEventListener('icecandidate',e=>{
-    console.log("IceCandidate Called !")
-    console.log(e)
+    // console.log("IceCandidate Called !")
+    // console.log(e)
+    // console.log(e)
     if(e.candidate){
       socket.emit('new-ice-candidate' , e.candidate);
     }
   });
 
   PeerConnection.addEventListener('icegatheringstatechange' , e=>{
-    console.log("IceCandidate Gathering Started !")
+    // console.log("IceCandidate Gathering Started !")
   });
   
   socket.on('new-ice-candidate' , async e => {
-    console.log("NewIceCandidate Called !")
-    console.log(e)
-    if(e.iceCandidate){
+    // console.log("NewIceCandidate Called !")
+    // console.log(e)
+    if(e){
       try{
-        await PeerConnection.addIceCandidate(e.iceCandidate);
+        // console.log(e);
+        await PeerConnection.addIceCandidate(e);
+        console.log("\nice candidate added\n");
       } catch(err){
         console.error('Error Adding Candidate' , err);
       }
@@ -54,16 +61,9 @@ function App() {
   });
 
   PeerConnection.addEventListener('icecandidateerror',event =>{
-    console.log('Error getting ICE details');
+    // console.log('Error getting ICE details');
   })
 
-  PeerConnection.addEventListener('track', async (event) => {
-      console.log('Track Event Called');
-      const remoteVideo = document.getElementById('remote-content');
-      console.log(remoteVideo)
-      const [remoteStream] = event.streams;
-      remoteVideo.srcObject = remoteStream;
-  });
 
 
 
