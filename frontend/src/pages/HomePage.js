@@ -7,7 +7,7 @@ const HomePage = ({socket , PeerConnection})=>{
 
     const handleJoinCall = ()=>{
         const SessionId = prompt("Enter the SessionId");
-        navigate(`/call/${SessionId}/${SessionId}`);
+        if(SessionId != "")navigate(`/call/${SessionId}/${SessionId}`);
     }
     
 

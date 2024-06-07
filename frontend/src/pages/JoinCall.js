@@ -5,6 +5,14 @@ const JoinCall = ({ PeerConnection , socket})=>{
     var Stream;
 
     const InitializeInputSystem = async () =>{
+
+        const Placeholder = document.getElementById("content-placeholder");
+
+        const remoteVideo = document.createElement("video");
+        remoteVideo.playsInline = 1;
+        remoteVideo.autoplay = 1;
+        Placeholder.appendChild(remoteVideo);
+
         const constrains = {
             "video":true,
             "audio":true
@@ -28,9 +36,6 @@ const JoinCall = ({ PeerConnection , socket})=>{
         })
         
         PeerConnection.addEventListener('track', async (event) => {
-            // console.log('Track Event Called');
-            const remoteVideo = document.getElementById('remote-content');
-            console.log(remoteVideo)
             const [remoteStream] = event.streams;
             console.log("Recieved stream",remoteStream);
             remoteVideo.srcObject = remoteStream;
@@ -65,10 +70,10 @@ const JoinCall = ({ PeerConnection , socket})=>{
 
     return(
        
-        <div>
+        <div id="content-placeholder">
             <h1>Welcome to the video call</h1>
             <video id="local-content" autoPlay={true} playsInline={true} muted={true}></video>
-            <video id="remote-content" autoPlay={true} playsInline={true}></video> 
+            {/* <video id="remote-content" autoPlay={true} playsInline={true}></video>  */}
         </div>
         
     );

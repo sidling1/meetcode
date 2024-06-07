@@ -12,7 +12,7 @@ function App() {
   const url = 'http://localhost:5000';
 
   const socket = io(url , {
-      autoConnect: false ,
+      autoConnect: false,
   });  
 
   const configuration = {
@@ -24,24 +24,14 @@ function App() {
   const PeerConnection = new RTCPeerConnection(configuration);
    
   PeerConnection.addEventListener('icecandidate',e=>{
-    // console.log("IceCandidate Called !")
-    // console.log(e)
-    // console.log(e)
     if(e.candidate){
       socket.emit('new-ice-candidate' , e.candidate);
     }
   });
-
-  PeerConnection.addEventListener('icegatheringstatechange' , e=>{
-    // console.log("IceCandidate Gathering Started !")
-  });
   
   socket.on('new-ice-candidate' , async e => {
-    // console.log("NewIceCandidate Called !")
-    // console.log(e)
     if(e){
       try{
-        // console.log(e);
         await PeerConnection.addIceCandidate(e);
         console.log("\nice candidate added\n");
       } catch(err){
@@ -59,13 +49,6 @@ function App() {
     }
 
   });
-
-  PeerConnection.addEventListener('icecandidateerror',event =>{
-    // console.log('Error getting ICE details');
-  })
-
-
-
 
   return (
     <Router>
